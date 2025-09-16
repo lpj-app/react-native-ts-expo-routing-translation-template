@@ -18,7 +18,7 @@ A minimal Expo + React Native + TypeScript template with file\-based react-routi
 ## Demo
 The translation is based on the [nextjs website template](https://github.com/lpj-app/nextjs-translation-template). The translation can be tested live [here](https://nextjs-language-template.lpj.app/).
 
-Check out the demo:
+Check out the demo: <br>
 [![Demo video](https://img.youtube.com/vi/SvcQUSJpff4/0.jpg)](https://youtube.com/shorts/SvcQUSJpff4?si=-gUaqOcS8wQsgzup)
 ## Prerequisites
 
