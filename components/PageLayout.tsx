@@ -4,20 +4,61 @@ import {View, Text, TouchableOpacity} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import {PagesStackParamList, RootStackParamList} from "../types";
+import { RootStackParamList} from "../types";
 import { useLanguage } from '../contexts/LanguageContext';
+import { SafeAreaView } from "react-native-safe-area-context";
+
+interface LayoutProps {
+    children: React.ReactNode;
+    title?: string;
+    showTopbar?: boolean;
+    showNavbar?: boolean;
+}
+
+interface LayoutProps {
+    children: React.ReactNode;
+    title?: string;
+    showTopbar?: boolean;
+    showNavbar?: boolean;
+    navbarMode?: "full" | "disabled" | "content-hidden";
+}
+
+export default function Layout({
+                                   children,
+                                   title,
+                                   showTopbar = true,
+                                   showNavbar = true,
+                                   navbarMode = "full",
+                               }: LayoutProps) {
+    const renderNavbar = () => {
+        if (navbarMode === "disabled") return null;
+        return <Navbar mode={navbarMode} />;
+    };
+
+    return (
+        <SafeAreaView className="flex-1 bg-gray-100">
+            {showTopbar && <Topbar title={title} />}
+            <View className="flex-1">{children}</View>
+            {showNavbar && renderNavbar()}
+        </SafeAreaView>
+    );
+}
+
+// Navbar component
+interface NavbarProps {
+    mode?: "full" | "content-hidden" | "disabled";
+}
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 type FeatherName = React.ComponentProps<typeof Feather>['name'];
 
-
-export function Navbar() {
+export function Navbar({ mode = "full" }: NavbarProps) {
   const {t} = useLanguage();
   const navigation = useNavigation<NavigationProp>();
 
   const items: {
-    route: keyof PagesStackParamList | keyof RootStackParamList;
+    route: keyof RootStackParamList;
     label: string;
     icon: FeatherName
   }[] = [
@@ -34,17 +75,19 @@ export function Navbar() {
         {items.map((item) => (
           <TouchableOpacity
             key={item.route}
-            onPress={() => {
-              if (item.route === "Main") {
-                navigation.navigate(item.route);
-              } else {
-                navigation.navigate("Pages", { screen: item.route as keyof PagesStackParamList, params: {} });
-              }
-            }}
+            onPress={() => navigation.navigate({ name: item.route, params: {} })}
             className="flex-1 items-center py-2 rounded-xl active:bg-white"
+            disabled={mode === "content-hidden" || mode === "disabled"}
           >
-            <Feather name={item.icon} size={18} color="#4B5563" />
-            <Text className="text-xs text-gray-600 mt-0.5">{item.label}</Text>
+            {mode === "full" && (
+              <View>
+                <Feather name={item.icon} size={18} color="#4B5563" />
+                <Text className="text-xs text-gray-600 mt-0.5">{item.label}</Text>
+              </View>
+            )}
+            {mode === "content-hidden" && (
+              <View className="h-8 w-8" />
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -72,7 +115,7 @@ export function Topbar(props: { title?: string }) {
                 {/* User-Button */}
                 <TouchableOpacity
                     className="w-8 h-8 bg-blue-500 rounded-lg items-center justify-center active:bg-blue-600"
-                    onPress={() => navigation.navigate("Account")}
+                    onPress={() => navigation.navigate({name: "Account", params: {} })}
                 >
                     <Feather name="user" size={16} color="white" />
                 </TouchableOpacity>
