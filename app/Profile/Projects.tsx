@@ -18,7 +18,7 @@ export default function ProjectsScreen() {
                 <Button
                     title={t('projects.button')}
                     onPress={() =>
-                        navigation.navigate("ProjectDetail", {})
+                        navigation.navigate({name: 'ProjectDetail', params: {}})
                     }
                 />
 
