@@ -6,11 +6,11 @@ import Layout from '../components/PageLayout';
 
 import MainScreen from '../app/Main';
 import AccountScreen from '../app/Account';
-import ClubWikiScreen from '../app/Profile/Wiki';
-import ClubProjectsScreen from '../app/Profile/Projects';
-import ClubProjectDetailScreen from '../app/Profile/ProjectDetail';
-import ClubCalendarScreen from '../app/Profile/Calendar';
-import ClubSettingsScreen from '../app/Profile/Settings';
+import WikiScreen from '../app/Profile/Wiki';
+import ProjectsScreen from '../app/Profile/Projects';
+import ProjectDetailScreen from '../app/Profile/ProjectDetail';
+import CalendarScreen from '../app/Profile/Calendar';
+import SettingsScreen from '../app/Profile/Settings';
 import { useRef, useState } from 'react';
 
 type NavbarMode = "full" | "disabled" | "content-hidden";
@@ -59,11 +59,11 @@ export default function MainNavigation() {
                 >
                     <Stack.Screen name="Main" component={MainScreen} />
                     <Stack.Screen name="Account" component={AccountScreen} />
-                    <Stack.Screen name="Wiki" component={ClubWikiScreen} />
-                    <Stack.Screen name="Projects" component={ClubProjectsScreen} />
-                    <Stack.Screen name="ProjectDetail" component={ClubProjectDetailScreen} />
-                    <Stack.Screen name="Calendar" component={ClubCalendarScreen} />
-                    <Stack.Screen name="Settings" component={ClubSettingsScreen} />
+                    <Stack.Screen name="Wiki" component={WikiScreen} />
+                    <Stack.Screen name="Projects" component={ProjectsScreen} />
+                    <Stack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
+                    <Stack.Screen name="Calendar" component={CalendarScreen} />
+                    <Stack.Screen name="Settings" component={SettingsScreen} />
             </Stack.Navigator>
             </Layout>
         </NavigationContainer>
