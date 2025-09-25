@@ -1,18 +1,10 @@
-import { NavigatorScreenParams } from "@react-navigation/native";
-
-// types.ts
-export type PagesStackParamList = {
-    Start: {};
+// RootStack
+export type RootStackParamList = {
+    Main: {};
+    Account: {};
     Wiki: {};
     Projects: {};
     ProjectDetail: {};
     Calendar: {};
     Settings: {};
-};
-
-// RootStack
-export type RootStackParamList = {
-    Main: undefined;
-    Account: undefined;
-    Pages: NavigatorScreenParams<PagesStackParamList>;
 };
