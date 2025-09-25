@@ -1,6 +1,10 @@
 # React Native TS Expo Routing + Translation Template
 
-A minimal Expo + React Native + TypeScript template with file\-based react-routing and lightweight page\-scoped translations powered by custom react context and preconfigured NativeWind/Tailwind styling.
+A minimal Expo + React Native + TypeScript template with file\-based react-routing and lightweight page\-scoped translations powered by custom react context and preconfigured NativeWind/Tailwind styling. 
+
+<br><br>
+
+Current version: 1.0.1
 
 # Contents
 - [Demo](#demo)
@@ -9,6 +13,10 @@ A minimal Expo + React Native + TypeScript template with file\-based react-routi
 - [What’s included](#whats-included)
 - [Project structure](#project-structure)
 - [Routing model](#routing-model)
+  - [Add new page to routing](#add-new-page-to-routing)
+  - [Navigate between pages](#navigate-between-pages)
+  - [Add params to routes](#add-params-to-routes)
+    - [Set content and visibiility of navbar and topbar](#set-content-and-visibiility-of-navbar-and-topbar)
 - [Translations model](#translations-model)
 - [Styling with NativeWind/Tailwind](#styling-with-nativewindtailwind)
 - [Common tasks](#common-tasks)
@@ -59,7 +67,7 @@ Optional:
 ## Project structure
 
 - `app/`: File\-based routes (e.g., `Main.tsx`, `Account.tsx`, nested `Profile/Calendar.tsx`)
-- `components/PageLayout.tsx`: Shared layout wrapper for pages
+- `components/PageLayout.tsx`: Shared layout wrapper for pages (includes navbar and topbar)
 - `contexts/`: Language context and page\-scoped translation maps
 - `navigation/`: Optional navigation composition for advanced scenarios
 - `assets/`: App icons, splash, images, videos
@@ -73,7 +81,120 @@ Optional:
     - `app/Account.tsx` → `/Account`
     - `app/Profile/Projects.tsx` → `/Profile/Projects`
 
-Use standard React Native components with `className` for NativeWind styling.
+### Add new page to routing
+1. Create `app/NewPage.tsx` or nested `app/Folder/NewPage.tsx`.
+2. Use `useNavigation` from `@react-navigation/native` to navigate programmatically.
+3. (Optional) Add translations in `contexts/NewPageTranslation.ts` and import in `
+4. Add the route name alias to `types.ts`
+```ts
+// RootStack
+export type RootStackParamList = {
+    Main: {};
+    Account: {};
+    Wiki: {};
+    Projects: {};
+    ProjectDetail: {};
+    Calendar: {};
+    Settings: {};
+    NewPage: {}; // <- add your new page here
+};
+```
+5. Import your new page and add the new route to config mapping in `navigation/MainNavigation.tsx`
+
+Import new page:
+```ts
+import NewPage from '../app/NewPage'; // <- import your new page here
+```
+
+Add page to config mapping:
+```ts
+// Config mapping
+const layoutConfig: Record<
+    keyof RootStackParamList,
+    { title?: string; navbarMode: NavbarMode; showTopbar: boolean }
+> = {
+    Main: { navbarMode: "full", showTopbar: true },
+    Account: { navbarMode: "full", showTopbar: true },
+    Wiki: { navbarMode: "full", showTopbar: true },
+    Projects: { navbarMode: "full", showTopbar: true },
+    ProjectDetail: { navbarMode: "full", showTopbar: true },
+    Calendar: { navbarMode: "content-hidden", showTopbar: true },
+    Settings: { navbarMode: "disabled", showTopbar: true },
+    NewPage: { navbarMode: "full", showTopbar: true }, // <- add your new page here
+};
+```
+
+#### Set content and visibiility of navbar and topbar
+Edit the `layoutConfig` object in `MainNavigation.tsx` to set:
+- `navbarMode`: `"full"` (default, shows all icons), `"content-hidden"` (hides icons, shows back button), `"disabled"` (hides navbar)
+- `showTopbar`: `true` (default, shows topbar), `false` (hides topbar)
+
+This is how you can specify the visibility and content of the navbar and topbar for each page as needed.
+
+F.e. a signup or login page does not need navbar content but it could be nice to have the component for design, so you can set `navbarMode: "content-hidden"`
+
+The `layoutConfig` is needed to wrap the entire NavigationContainer in `MainNavigation.tsx` with the `PageLayout` component to prevent rerender of nav and top bar on each page change.
+
+6. Finally add the route to the `Stack.Navigator` in `MainNavigation.tsx`:
+
+```ts
+...
+<Stack.Screen name="Main" component={MainScreen} />
+<Stack.Screen name="Account" component={AccountScreen} />
+<Stack.Screen name="Wiki" component={WikiScreen} />
+<Stack.Screen name="Projects" component={ProjectsScreen} />
+<Stack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
+<Stack.Screen name="Calendar" component={CalendarScreen} />
+<Stack.Screen name="Settings" component={SettingsScreen} />
+<Stack.Screen name="NewPage" component={NewPage} /> {/* <- add your new page here */}
+...
+```
+
+### Navigate between pages
+- Use `useNavigation` from `@react-navigation/native` and the `RootStackParamList` type from `types.ts` to get typed navigation.
+- Example:
+```ts
+import {View, Text, Button} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../types";
+import { useLanguage } from '../../contexts/LanguageContext';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export default function ProjectsScreen() {
+    const {t} = useLanguage();
+    const navigation = useNavigation<NavigationProp>();
+
+    return (
+        <SafeAreaView className="flex-1 bg-gray-100">
+            <View className="flex-1 items-center justify-center">
+              <Text>{t('projects.title')}</Text>
+                <Button
+                    title={t('projects.button')}
+                    onPress={() =>
+                        navigation.navigate({name: 'ProjectDetail', params: {}})
+                        navigation.navigate({name: 'ProjectDetail', params: {id: 2, name: 'My Project'}}) {/*Navigate with params*/}
+                    }
+                />
+
+            </View>
+        </SafeAreaView>
+    );
+}
+```
+
+### Add params to routes
+Add the route params to `types.ts`:
+```ts
+// RootStack
+export type RootStackParamList = {
+    ...
+    NewPage: {id: number, name: string}; // <- add params like id or name
+};
+```
+
 
 ## Translations model
 
@@ -85,23 +206,30 @@ Use standard React Native components with `className` for NativeWind styling.
 Example usage in a screen:
 
 ```ts
-import { useContext } from 'react';
-import { Text, View } from 'react-native';
-import PageLayout from '@/components/PageLayout';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { View, Text } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Main() {
-  const { t } = useLanguage();
-  
-  return (
-    <PageLayout title={t('main.title')}>
-      <View className="gap-3 p-4">
-        <Text className="text-xl font-bold">{t('main.welcome')}</Text>
-        <Text className="text-neutral-500">{t('main.info')}</Text>
-      </View>
-    </PageLayout>
-  );
+import {useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../types";
+import { useLanguage } from '../contexts/LanguageContext';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export default function MainScreen() {
+    const {t, setLanguage, language} = useLanguage();
+    const navigation = useNavigation<NavigationProp>();
+
+    return (
+    <SafeAreaView className="flex-1 bg-gray-100">
+        <View className="flex-1 items-center justify-center">
+            <Text>{t('main.title')}</Text>
+            <Text className={'mt-8'}>{t('main.info')}</Text>
+        </View>
+    </SafeAreaView>
+);
 }
+
 ```
 
 Example translation map in `contexts/MainTranslation.ts`:
@@ -202,6 +330,8 @@ export function Badge({ label }: { label: string }) {
   );
 }
 ```
+
+Use standard React Native components with `className` for NativeWind styling.
 
 ## Common tasks
 
