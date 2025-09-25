@@ -1,26 +1,22 @@
-import React from "react";
 import { View, Text } from "react-native";
-import { useRoute, RouteProp } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { PagesStackParamList } from "../../types";
-import { Topbar, Navbar } from "../../components/PageLayout";
+
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../../types";
 import { useLanguage } from '../../contexts/LanguageContext';
 
-type ProjectRouteProp = RouteProp<PagesStackParamList, "ProjectDetail">;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function ProjectDetail() {
   const {t} = useLanguage();
-  const route = useRoute<ProjectRouteProp>();
+  const navigation = useNavigation<NavigationProp>();
 
     return (
         <SafeAreaView className="flex-1 bg-gray-100">
-            <Topbar />
-
             <View className="flex-1 items-center justify-center">
               <Text>{t('projectDetails.title')}</Text>
             </View>
-
-            <Navbar />
         </SafeAreaView>
     );
 }
